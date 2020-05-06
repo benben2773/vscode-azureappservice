@@ -25,13 +25,13 @@ export async function createTrialApp(context: IActionContext & Partial<ICreateCh
 
     const templates: TemplateQuickPickItem[] = [
         { label: 'Express', trialAppTypeName: 'Express' },
-        { label: 'Super Awesome Trial App Template', trialAppTypeName: 'C#' }
+        { label: 'ASP.NET Core', trialAppTypeName: 'ASP.NET Core' }
     ];
 
     const result: TemplateQuickPickItem = <TemplateQuickPickItem>await ext.ui.showQuickPick<TemplateQuickPickItem>(templates, { placeHolder: 'Choose a template for your app.' });
 
     if (result !== undefined) {
-        window.showInformationMessage('Trial app successfully created.', 'Clone source', 'Browse site').then(async (result) => {
+        window.showInformationMessage(`${result.trialAppTypeName} trial app has been successfully created.`, 'Clone source', 'Browse site').then(async (result) => {
             if (result) {
                 ext.outputChannel.append(result);
             }

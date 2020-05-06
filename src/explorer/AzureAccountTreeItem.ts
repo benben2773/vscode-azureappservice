@@ -25,7 +25,7 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         let children: AzExtTreeItem[];
 
         if (ext.context.globalState.get('appServiceTrialMode') === true) {
-            existingChildren.push(new TrialAppTreeItem(this, { label: 'Trial App Name', contextValue: 'trialAppContext', iconPath: getIconPath('WebApp'), includeInTreeItemPicker: false }));
+            existingChildren.unshift(new TrialAppTreeItem(this, { label: 'Trial App Name', contextValue: 'trialAppContext', iconPath: getIconPath('WebApp'), includeInTreeItemPicker: false }));
 
             children = existingChildren.filter(child => child.commandId !== 'appService.CreateTrialApp');
 
@@ -33,5 +33,12 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         }
 
         return existingChildren;
+    }
+
+    public compareChildrenImpl(item1: AzExtTreeItem, item2: AzExtTreeItem): number {
+        if (item2 instanceof TrialAppTreeItem) {
+            return 1; // trial apps on top
+        }
+        return super.compareChildrenImpl(item1, item2);
     }
 }
