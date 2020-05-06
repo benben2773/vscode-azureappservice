@@ -4,7 +4,7 @@
     "description": "An Azure App Service management extension for Visual Studio Code.",
     "version": "0.16.6-alpha",
     "publisher": "ms-azuretools",
-    "icon": "resources/WebApp.png",
+    "": "resources/WebApp.png",
     "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
     "engines": {
         "vscode": "^1.31.0"
@@ -29,6 +29,7 @@
     ],
     "preview": true,
     "activationEvents": [
+        "onCommand:appService.CreateTrialApp",
         "onCommand:appService.CreateWebApp",
         "onCommand:appService.CreateWebAppAdvanced",
         "onCommand:appService.Refresh",
@@ -39,6 +40,7 @@
         "onCommand:appService.Stop",
         "onCommand:appService.Restart",
         "onCommand:appService.Delete",
+        "onCommand:appService.DeleteTrialApp",
         "onCommand:appService.Deploy",
         "onCommand:appService.ConfigureDeploymentSource",
         "onCommand:appService.DeploymentScript",
@@ -71,6 +73,15 @@
     "main": "./main.js",
     "contributes": {
         "commands": [
+            {
+                "command": "appService.CreateTrialApp",
+                "title": "Create New Trial App...",
+                "category": "Azure App Service",
+                "icon": {
+                    "light": "resources/light/createAppSvc.svg",
+                    "dark": "resources/dark/createAppSvc.svg"
+                }
+            },
             {
                 "command": "appService.selectSubscriptions",
                 "title": "Select Subscriptions...",
@@ -144,6 +155,11 @@
             {
                 "command": "appService.Delete",
                 "title": "Delete...",
+                "category": "Azure App Service"
+            },
+            {
+                "command": "appService.DeleteTrialApp",
+                "title": "Delete Trial App...",
                 "category": "Azure App Service"
             },
             {
@@ -363,6 +379,10 @@
                 }
             ],
             "view/item/context": [
+                {
+                    "command": "appService.DeleteTrialApp",
+                    "when": "view == azureAppService && viewItem == trialAppContext"
+                },
                 {
                     "command": "appService.selectSubscriptions",
                     "when": "view == azureAppService && viewItem == azureextensionui.azureSubscription",

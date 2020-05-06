@@ -21,7 +21,9 @@ import { removeCosmosDBConnection } from "./connections/removeCosmosDBConnection
 import { revealConnection } from "./connections/revealConnection";
 import { revealConnectionInAppSettings } from "./connections/revealConnectionInAppSettings";
 import { createSlot } from "./createSlot";
+import { createTrialApp } from "./createTrialApp/createTrialApp";
 import { createWebApp, createWebAppAdvanced } from "./createWebApp/createWebApp";
+import { deleteTrialApp } from "./deleteTrialApp";
 import { deleteWebApp } from "./deleteWebApp";
 import { deploy } from "./deploy/deploy";
 import { deploySlot } from "./deploy/deploySlot";
@@ -46,6 +48,8 @@ import { stopWebApp } from "./stopWebApp";
 import { swapSlots } from "./swapSlots";
 
 export function registerCommands(): void {
+
+    registerCommand('appService.CreateTrialApp', createTrialApp);
     registerCommand('appService.AddCosmosDBConnection', addCosmosDBConnection);
     registerCommand('appService.appSettings.Add', addAppSetting);
     registerCommand('appService.appSettings.Delete', deleteAppSetting);
@@ -61,6 +65,7 @@ export function registerCommands(): void {
     registerCommand('appService.CreateWebApp', createWebApp);
     registerCommand('appService.CreateWebAppAdvanced', createWebAppAdvanced);
     registerCommand('appService.Delete', deleteWebApp);
+    registerCommand('appService.DeleteTrialApp', deleteTrialApp);
     registerCommand('appService.DeploymentScript', generateDeploymentScript);
     registerCommand('appService.DisconnectRepo', disconnectRepo);
     registerCommand('appService.EnableFileLogging', enableFileLogging);
