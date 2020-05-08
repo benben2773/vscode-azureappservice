@@ -3,8 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzExtTreeItem, AzureAccountTreeItemBase, IActionContext, ISubscriptionContext } from 'vscode-azureextensionui';
+import { AzExtTreeItem, AzureAccountTreeItemBase, GenericTreeItem, IActionContext, ISubscriptionContext } from 'vscode-azureextensionui';
 import { ext } from '../extensionVariables';
+import { localize } from '../localize';
 import { getIconPath } from '../utils/pathUtils';
 import { SubscriptionTreeItem } from './SubscriptionTreeItem';
 import { TrialAppTreeItem } from './TrialAppTreeItem';
@@ -20,24 +21,35 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
 
     public async loadMoreChildrenImpl(clearCache: boolean, context: IActionContext): Promise<AzExtTreeItem[]> {
 
-        const existingChildren: AzExtTreeItem[] = await super.loadMoreChildrenImpl(clearCache, context);
+        const children: AzExtTreeItem[] = await super.loadMoreChildrenImpl(clearCache, context);
 
-        let children: AzExtTreeItem[];
+        const hasTrialApp: boolean | undefined = ext.context.globalState.get('appServiceTrialMode');
 
-        if (ext.context.globalState.get('appServiceTrialMode') === true) {
-            existingChildren.unshift(new TrialAppTreeItem(this, { label: 'Trial App Name', contextValue: 'trialAppContext', iconPath: getIconPath('WebApp'), includeInTreeItemPicker: false }));
+        if (!hasTrialApp && children.length > 0 && children[0] instanceof GenericTreeItem) {
 
-            children = existingChildren.filter(child => child.commandId !== 'appService.CreateTrialApp');
+            const ti: GenericTreeItem = new GenericTreeItem(this, {
+                label: localize('createNewTrialApp', 'Create free NodeJS Trial App...'),
+                commandId: 'appService.CreateTrialApp',
+                contextValue: 'createTrialApp',
+                iconPath: getIconPath('CreateNewProject'),
+                includeInTreeItemPicker: true
+            });
 
-            return children;
+            ti.commandArgs = [];
+            children.push(ti);
         }
 
-        return existingChildren;
+        if (ext.context.globalState.get('appServiceTrialMode') === true) {
+            // make metadata request
+            children.push(new TrialAppTreeItem(this, { label: 'Trial App Name', contextValue: 'trialAppContext', iconPath: getIconPath('WebApp'), includeInTreeItemPicker: false }));
+        }
+
+        return children;
     }
 
     public compareChildrenImpl(item1: AzExtTreeItem, item2: AzExtTreeItem): number {
-        if (item2 instanceof TrialAppTreeItem) {
-            return 1; // trial apps on top
+        if (item2 instanceof SubscriptionTreeItem) {
+            return -1; // trial apps on top of subscriptions
         }
         return super.compareChildrenImpl(item1, item2);
     }

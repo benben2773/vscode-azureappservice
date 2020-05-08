@@ -3,22 +3,19 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzExtParentTreeItem, GenericTreeItem, IGenericTreeItemOptions } from 'vscode-azureextensionui';
+import { AzExtParentTreeItem, IGenericTreeItemOptions } from 'vscode-azureextensionui';
 import { getIconPath } from '../utils/pathUtils';
 
-export abstract class TrialAppTreeItemBase extends GenericTreeItem {
+export abstract class TrialAppTreeItemBase extends AzExtParentTreeItem {
 
-    public minutesRemaining: number = 60;
+    public timeLeft: number = 60;
     public parent: AzExtParentTreeItem;
     public readonly name: string;
-
-    public abstract isReadOnly: boolean;
-
+    public contextValue: string = 'trialAppContext';
     public childTypeLabel: string = 'trialApp';
-    public description: string = `${this.minutesRemaining} min. remaining`;
+    public description: string = `${this.timeLeft} min. remaining`;
     public constructor(parent: AzExtParentTreeItem, options: IGenericTreeItemOptions) {
-        super(parent, options);
-        this.contextValue = 'trialAppContext';
+        super(parent);
         this.id = 'trialApp';
         this.iconPath = getIconPath('WebApp');
     }
