@@ -4,12 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from 'vscode';
-import { AppSettingsTreeItem, LogFilesTreeItem } from 'vscode-azureappservice';
+import { AppSettingsTreeItem, LogFilesTreeItem, TrialAppDeploymentTreeItem, TrialAppFolderTreeItem } from 'vscode-azureappservice';
 import { ext } from 'vscode-azureappservice/out/src/extensionVariables';
-import { AzExtParentTreeItem, AzureTreeItem, IGenericTreeItemOptions } from 'vscode-azureextensionui';
+import { AzExtParentTreeItem, AzExtTreeItem, IGenericTreeItemOptions } from 'vscode-azureextensionui';
 import { ConnectionsTreeItem } from './ConnectionsTreeItem';
-import { TrialAppDeploymentTreeItem } from './trialApp/TrialAppDeploymentTreeItem';
-import { TrialAppFolderTreeItem } from './trialApp/TrialAppFolderTreeItem';
 import { TrialAppTreeItemBase } from './TrialAppTreeItemBase';
 import { WebJobsNATreeItem, WebJobsTreeItem } from './WebJobsTreeItem';
 
@@ -33,7 +31,7 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
         this.appSettingsNode = new AppSettingsTreeItem(this);
         // this._connectionsNode = new ConnectionsTreeItem(null);
         this.deploymentsNode = new TrialAppDeploymentTreeItem(this);
-        this._siteFilesNode = new TrialAppFolderTreeItem(parent, 'Web app files', '', false);
+        this._siteFilesNode = new TrialAppFolderTreeItem(parent, 'Web app files', '.', false);
     }
     public dispose(): void {
         // tslint:disable-next-line: no-unsafe-any
@@ -44,7 +42,7 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
         return false;
     }
 
-    public async loadMoreChildrenImpl(_clearCache: boolean): Promise<AzureTreeItem[]> {
+    public async loadMoreChildrenImpl(_clearCache: boolean): Promise<AzExtTreeItem[]> {
         return [this.appSettingsNode, this.deploymentsNode, this._siteFilesNode];
     }
 
