@@ -41,6 +41,7 @@
         "onCommand:appService.Restart",
         "onCommand:appService.Delete",
         "onCommand:appService.DeleteTrialApp",
+        "onCommand:appService.ExtendTrialApp",
         "onCommand:appService.Deploy",
         "onCommand:appService.ConfigureDeploymentSource",
         "onCommand:appService.DeploymentScript",
@@ -160,6 +161,11 @@
             {
                 "command": "appService.DeleteTrialApp",
                 "title": "Delete Trial App...",
+                "category": "Azure App Service"
+            },
+            {
+                "command": "appService.ExtendTrialApp",
+                "title": "Extend Trial to 24 hours",
                 "category": "Azure App Service"
             },
             {
@@ -380,8 +386,13 @@
             ],
             "view/item/context": [
                 {
+                    "command": "appService.ExtendTrialApp",
+                    "when": "view == azureAppService && viewItem =~ /^(trialApp)$/",
+                    "group": "2_appServiceControlCommands@1"
+                },
+                {
                     "command": "appService.DeleteTrialApp",
-                    "when": "view == azureAppService && viewItem == trialAppContext"
+                    "when": "view == azureAppService && viewItem == trialApp"
                 },
                 {
                     "command": "appService.selectSubscriptions",
@@ -415,7 +426,7 @@
                 },
                 {
                     "command": "appService.Browse",
-                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot)$/",
+                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot|trialApp)$/",
                     "group": "1_appServiceGeneralCommands@2"
                 },
                 {

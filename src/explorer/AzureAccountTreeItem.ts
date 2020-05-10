@@ -3,10 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { TrialAppMetadata } from 'vscode-azureappservice';
 import { AzExtTreeItem, AzureAccountTreeItemBase, GenericTreeItem, IActionContext, ISubscriptionContext } from 'vscode-azureextensionui';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
 import { getIconPath } from '../utils/pathUtils';
+import { requestUtils } from '../utils/requestUtils';
 import { SubscriptionTreeItem } from './SubscriptionTreeItem';
 import { TrialAppTreeItem } from './TrialAppTreeItem';
 
@@ -40,8 +42,17 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         }
 
         if (ext.context.globalState.get('appServiceTrialMode') === true) {
-            // make metadata request
-            children.push(new TrialAppTreeItem(this, { label: 'Trial App Name', contextValue: 'trialAppContext', iconPath: getIconPath('WebApp'), includeInTreeItemPicker: false }));
+            const session: string | undefined = ext.context.globalState.get('trialApp.loginsession');
+            if (session) {
+                const trialAppNode = new TrialAppTreeItem(this, await this.getTrialAppMetaData(session));
+                const token: string | undefined = ext.context.globalState.get('trialAppBearerToken');
+
+                if (token !== undefined) {
+                    trialAppNode.token = token;
+                }
+
+                children.push(trialAppNode);
+            }
         }
 
         return children;
@@ -52,5 +63,28 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
             return -1; // trial apps on top of subscriptions
         }
         return super.compareChildrenImpl(item1, item2);
+    }
+
+    private async getTrialAppMetaData(loginsession: string): Promise<TrialAppMetadata> {
+        const metadataRequest: requestUtils.Request = await requestUtils.getDefaultRequest('https://tryappservice.azure.com/api/vscoderesource', undefined, 'GET');
+
+        metadataRequest.headers = {
+            accept: "*/*",
+            "accept-language": "en-US,en;q=0.9",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            cookie: `loginsession=${loginsession}`
+        };
+
+        try {
+            const result: string = await requestUtils.sendRequest<string>(metadataRequest);
+            ext.outputChannel.appendLine(String(result));
+            return <TrialAppMetadata>JSON.parse(result);
+
+        } catch (e) {
+            ext.outputChannel.appendLine(e);
+            throw Error;
+        }
     }
 }
