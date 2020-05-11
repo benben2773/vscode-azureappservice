@@ -13,9 +13,6 @@ export abstract class TrialAppTreeItemBase extends AzExtParentTreeItem {
     public readonly name: string;
     public contextValue: string = 'trialApp';
     public childTypeLabel: string = 'trialApp';
-    public get description(): string {
-        return `${this.timeLeft.toFixed(0)} min. remaining`;
-    }
     public constructor(parent: AzExtParentTreeItem) {
         super(parent);
         this.id = 'trialApp';

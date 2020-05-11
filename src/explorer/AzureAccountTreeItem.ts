@@ -59,7 +59,7 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
     }
 
     public compareChildrenImpl(item1: AzExtTreeItem, item2: AzExtTreeItem): number {
-        if (item2 instanceof SubscriptionTreeItem) {
+        if (!(item1 instanceof SubscriptionTreeItem) && item2 instanceof SubscriptionTreeItem) {
             return -1; // trial apps on top of subscriptions
         }
         return super.compareChildrenImpl(item1, item2);

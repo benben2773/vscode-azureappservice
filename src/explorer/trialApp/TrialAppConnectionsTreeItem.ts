@@ -3,24 +3,24 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ISiteTreeRoot, ITrialAppTreeRoot } from 'vscode-azureappservice';
-import { AzExtTreeItem, AzureParentTreeItem, AzureTreeItem } from 'vscode-azureextensionui';
-import { getThemedIconPath, IThemedIconPath } from '../utils/pathUtils';
-import { CosmosDBConnection } from './CosmosDBConnection';
-import { CosmosDBTreeItem } from './CosmosDBTreeItem';
-import { SiteTreeItem } from './SiteTreeItem';
-import { TrialAppTreeItem } from './TrialAppTreeItem';
+import { ISiteTreeRoot } from 'vscode-azureappservice';
+import { AzExtParentTreeItem, AzExtTreeItem, AzureTreeItem } from 'vscode-azureextensionui';
+import { getThemedIconPath, IThemedIconPath } from '../../utils/pathUtils';
+import { TrialAppTreeItem } from '../TrialAppTreeItem';
+import { CosmosDBConnection } from './../CosmosDBConnection';
+import { CosmosDBTreeItem } from './../CosmosDBTreeItem';
 
-export class ConnectionsTreeItem extends AzureParentTreeItem<ISiteTreeRoot | ITrialAppTreeRoot> {
+export class TrialAppConnectionsTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'connections';
-    public readonly contextValue: string = ConnectionsTreeItem.contextValue;
+    public readonly contextValue: string = TrialAppConnectionsTreeItem.contextValue;
     public readonly label: string = 'Connections';
-    public readonly parent: SiteTreeItem;
+    public readonly parent: TrialAppTreeItem;
 
     private readonly _cosmosDBNode: CosmosDBTreeItem;
 
-    constructor(parent: SiteTreeItem | TrialAppTreeItem) {
+    constructor(parent: TrialAppTreeItem) {
         super(parent);
+        this.parent = parent;
         this._cosmosDBNode = new CosmosDBTreeItem(this);
     }
 

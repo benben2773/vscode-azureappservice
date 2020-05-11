@@ -5,7 +5,7 @@
 
 import { StringDictionary } from 'azure-arm-website/lib/models';
 import * as vscode from 'vscode';
-import { ISiteTreeRoot, validateAppSettingKey } from 'vscode-azureappservice';
+import { ISiteTreeRoot, ITrialAppTreeRoot, validateAppSettingKey } from 'vscode-azureappservice';
 import { AzExtTreeItem, AzureParentTreeItem, AzureTreeItem, GenericTreeItem, ICreateChildImplContext, UserCancelledError } from 'vscode-azureextensionui';
 import { AzureExtensionApiProvider } from 'vscode-azureextensionui/api';
 import { ext } from '../extensionVariables';
@@ -15,7 +15,7 @@ import { CosmosDBExtensionApi, DatabaseTreeItem } from '../vscode-cosmos.api';
 import { ConnectionsTreeItem } from './ConnectionsTreeItem';
 import { CosmosDBConnection } from './CosmosDBConnection';
 
-export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
+export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot | ITrialAppTreeRoot> {
     public static contextValueInstalled: string = 'сosmosDBConnections';
     public static contextValueNotInstalled: string = 'сosmosDBNotInstalled';
     public readonly label: string = 'Cosmos DB';
@@ -57,7 +57,8 @@ export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
 
         const cosmosDBApi = await this.getCosmosDBApi();
         // tslint:disable-next-line:strict-boolean-expressions
-        const appSettings = (await this.root.client.listApplicationSettings()).properties || {};
+        let appSettings = (await this.root.client.listApplicationSettings()).properties || {};
+
         const connections: IDetectedConnection[] = this.detectMongoConnections(appSettings).concat(this.detectDocDBConnections(appSettings));
         const treeItems = await this.createTreeItemsWithErrorHandling(
             connections,
