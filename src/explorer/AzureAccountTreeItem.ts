@@ -44,7 +44,8 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         if (ext.context.globalState.get('appServiceTrialMode') === true) {
             const session: string | undefined = ext.context.globalState.get('trialApp.loginsession');
             if (session) {
-                const trialAppNode = new TrialAppTreeItem(this, await this.getTrialAppMetaData(session));
+                const metadata: TrialAppMetadata = await this.getTrialAppMetaData(session);
+                const trialAppNode = new TrialAppTreeItem(this, metadata);
                 const token: string | undefined = ext.context.globalState.get('trialAppBearerToken');
 
                 if (token !== undefined) {

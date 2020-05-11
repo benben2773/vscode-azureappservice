@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ISiteTreeRoot } from 'vscode-azureappservice';
-import { AzExtParentTreeItem, AzExtTreeItem, AzureTreeItem } from 'vscode-azureextensionui';
+import { AzExtParentTreeItem, AzExtTreeItem } from 'vscode-azureextensionui';
 import { getThemedIconPath, IThemedIconPath } from '../../utils/pathUtils';
 import { TrialAppTreeItem } from '../TrialAppTreeItem';
 import { CosmosDBConnection } from './../CosmosDBConnection';
 import { CosmosDBTreeItem } from './../CosmosDBTreeItem';
+import { TrialAppCosmosDBTreeItem } from './TrialAppCosmosDBTreeItem';
 
 export class TrialAppConnectionsTreeItem extends AzExtParentTreeItem {
     public static contextValue: string = 'connections';
@@ -16,19 +16,19 @@ export class TrialAppConnectionsTreeItem extends AzExtParentTreeItem {
     public readonly label: string = 'Connections';
     public readonly parent: TrialAppTreeItem;
 
-    private readonly _cosmosDBNode: CosmosDBTreeItem;
+    private readonly _cosmosDBNode: TrialAppCosmosDBTreeItem;
 
     constructor(parent: TrialAppTreeItem) {
         super(parent);
         this.parent = parent;
-        this._cosmosDBNode = new CosmosDBTreeItem(this);
+        this._cosmosDBNode = new TrialAppCosmosDBTreeItem(this);
     }
 
     public get iconPath(): IThemedIconPath {
         return getThemedIconPath('Connections_16x');
     }
 
-    public async loadMoreChildrenImpl(_clearCache: boolean): Promise<AzureTreeItem<ISiteTreeRoot>[]> {
+    public async loadMoreChildrenImpl(_clearCache: boolean): Promise<AzExtTreeItem[]> {
         return [this._cosmosDBNode];
     }
 

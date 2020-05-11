@@ -6,21 +6,21 @@
 import { StringDictionary } from 'azure-arm-website/lib/models';
 import * as vscode from 'vscode';
 import { ISiteTreeRoot, validateAppSettingKey } from 'vscode-azureappservice';
-import { AzExtTreeItem, AzureParentTreeItem, AzureTreeItem, GenericTreeItem, ICreateChildImplContext, UserCancelledError } from 'vscode-azureextensionui';
+import { AzExtParentTreeItem, AzExtTreeItem, AzureTreeItem, GenericTreeItem, ICreateChildImplContext, UserCancelledError } from 'vscode-azureextensionui';
 import { AzureExtensionApiProvider } from 'vscode-azureextensionui/api';
-import { ext } from '../extensionVariables';
-import { nonNullProp } from '../utils/nonNull';
-import { getThemedIconPath, IThemedIconPath } from '../utils/pathUtils';
-import { CosmosDBExtensionApi, DatabaseTreeItem } from '../vscode-cosmos.api';
-import { ConnectionsTreeItem } from './ConnectionsTreeItem';
-import { CosmosDBConnection } from './CosmosDBConnection';
+import { ext } from '../../extensionVariables';
+import { nonNullProp } from '../../utils/nonNull';
+import { getThemedIconPath, IThemedIconPath } from '../../utils/pathUtils';
+import { CosmosDBExtensionApi, DatabaseTreeItem } from '../../vscode-cosmos.api';
+import { TrialAppConnectionsTreeItem } from './TrialAppConnectionsTreeItem';
+import { TrialAppCosmosDBConnection } from './TrialAppCosmosDBConnection';
 
-export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
+export class TrialAppCosmosDBTreeItem extends AzExtParentTreeItem {
     public static contextValueInstalled: string = 'сosmosDBConnections';
     public static contextValueNotInstalled: string = 'сosmosDBNotInstalled';
     public readonly label: string = 'Cosmos DB';
     public readonly childTypeLabel: string = 'Connection';
-    public readonly parent: ConnectionsTreeItem;
+    public readonly parent: TrialAppConnectionsTreeItem;
     public cosmosDBExtension: vscode.Extension<AzureExtensionApiProvider | undefined> | undefined;
 
     private readonly _endpointSuffix: string = '_ENDPOINT';
@@ -29,13 +29,13 @@ export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
 
     private _cosmosDBApi: CosmosDBExtensionApi | undefined;
 
-    constructor(parent: ConnectionsTreeItem) {
+    constructor(parent: TrialAppConnectionsTreeItem) {
         super(parent);
         this.cosmosDBExtension = vscode.extensions.getExtension('ms-azuretools.vscode-cosmosdb');
     }
 
     public get contextValue(): string {
-        return this.cosmosDBExtension ? CosmosDBTreeItem.contextValueInstalled : CosmosDBTreeItem.contextValueNotInstalled;
+        return this.cosmosDBExtension ? TrialAppCosmosDBTreeItem.contextValueInstalled : TrialAppCosmosDBTreeItem.contextValueNotInstalled;
     }
 
     public get iconPath(): IThemedIconPath {
@@ -57,7 +57,7 @@ export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
 
         const cosmosDBApi = await this.getCosmosDBApi();
         // tslint:disable-next-line:strict-boolean-expressions
-        const appSettings = (await this.root.client.listApplicationSettings()).properties || {};
+        const appSettings = (await this.parent.parent.client.listApplicationSettings()).properties || {};
 
         const connections: IDetectedConnection[] = this.detectMongoConnections(appSettings).concat(this.detectDocDBConnections(appSettings));
         const treeItems = await this.createTreeItemsWithErrorHandling(
@@ -67,7 +67,7 @@ export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
                 const databaseTreeItem = await cosmosDBApi.findTreeItem({
                     connectionString: c.connectionString
                 });
-                return databaseTreeItem ? new CosmosDBConnection(this, databaseTreeItem, c.keys) : undefined;
+                return databaseTreeItem ? new TrialAppCosmosDBConnection(this, databaseTreeItem, c.keys) : undefined;
             },
             (c: IDetectedConnection) => c.keys[0] // just use first key for label if connection is invalid
         );
@@ -91,7 +91,7 @@ export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
         if (!databaseToAdd) {
             throw new UserCancelledError();
         }
-        const appSettingsDict = await this.root.client.listApplicationSettings();
+        const appSettingsDict = await this.parent.parent.client.listApplicationSettings();
         // tslint:disable-next-line:strict-boolean-expressions
         appSettingsDict.properties = appSettingsDict.properties || {};
 
@@ -103,15 +103,15 @@ export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
             appSettingsDict.properties[k] = v;
         }
 
-        await this.root.client.updateApplicationSettings(appSettingsDict);
+        await this.parent.parent.client.updateApplicationSettings(appSettingsDict);
         await this.parent.parent.appSettingsNode.refresh();
 
-        const createdDatabase = new CosmosDBConnection(this, databaseToAdd, Array.from(newAppSettings.keys()));
+        const createdDatabase = new TrialAppCosmosDBConnection(this, databaseToAdd, Array.from(newAppSettings.keys()));
         context.showCreatingTreeItem(createdDatabase.label);
 
         const ok: vscode.MessageItem = { title: 'OK' };
         const revealDatabase: vscode.MessageItem = { title: 'Reveal Database' };
-        const message: string = `Database "${createdDatabase.label}" connected to web app "${this.root.client.fullName}". Created the following application settings: "${Array.from(newAppSettings.keys()).join(', ')}".`;
+        const message: string = `Database "${createdDatabase.label}" connected to web app "${this.parent.parent.client.metadata.hostName}". Created the following application settings: "${Array.from(newAppSettings.keys()).join(', ')}".`;
         // Don't wait
         vscode.window.showInformationMessage(message, ok, revealDatabase).then(async (result: vscode.MessageItem | undefined) => {
             if (result === revealDatabase) {
@@ -207,7 +207,7 @@ export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
 
         const appSettingKey: string = await ext.ui.showInputBox({
             prompt,
-            validateInput: (v?: string): string | undefined => validateAppSettingKey(appSettingsDict, this.root.client, v),
+            validateInput: (v?: string): string | undefined => validateAppSettingKey(appSettingsDict, this.parent.parent.client, v),
             value: defaultKey
         });
 
@@ -224,7 +224,7 @@ export class CosmosDBTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
                 if (!v) {
                     return "Connection setting prefix cannot be empty.";
                 } else {
-                    return validateAppSettingKey(appSettingsDict, this.root.client, v + this._endpointSuffix) || validateAppSettingKey(appSettingsDict, this.root.client, v + this._keySuffix) || validateAppSettingKey(appSettingsDict, this.root.client, v + this._databaseSuffix);
+                    return validateAppSettingKey(appSettingsDict, this.parent.parent.client, v + this._endpointSuffix) || validateAppSettingKey(appSettingsDict, this.parent.parent.client, v + this._keySuffix) || validateAppSettingKey(appSettingsDict, this.parent.parent.client, v + this._databaseSuffix);
                 }
             },
             value: defaultPrefix
