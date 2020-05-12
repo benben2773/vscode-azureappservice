@@ -6,7 +6,6 @@
 import * as vscode from 'vscode';
 import { LogFilesTreeItem } from 'vscode-azureappservice';
 import { DialogResponses, IActionContext } from 'vscode-azureextensionui';
-import KuduClient from 'vscode-azurekudu';
 import { SiteTreeItem } from "../../explorer/SiteTreeItem";
 import { TrialAppTreeItem } from '../../explorer/TrialAppTreeItem';
 import { WebAppTreeItem } from '../../explorer/WebAppTreeItem';
@@ -21,9 +20,7 @@ export async function enableFileLogging(context: IEnableFileLoggingContext, node
         node = await ext.tree.showTreeItemPicker<SiteTreeItem>(WebAppTreeItem.contextValue, context);
     }
 
-    if (node instanceof TrialAppTreeItem) {
-        const kuduClient: KuduClient = await node.client.getKuduClient();
-    } else {
+    if (!(node instanceof TrialAppTreeItem)) {
 
         if (node instanceof LogFilesTreeItem) {
             // If the entry point was the Log Files node, pass the parent as that's where the logic lives

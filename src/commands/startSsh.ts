@@ -6,9 +6,10 @@
 import { SiteConfigResource, User } from 'azure-arm-website/lib/models';
 import * as portfinder from 'portfinder';
 import * as vscode from 'vscode';
-import { reportMessage, setRemoteDebug, SiteClient, TunnelProxy } from 'vscode-azureappservice';
+import { reportMessage, setRemoteDebug, SiteClient, TrialAppClient, TunnelProxy } from 'vscode-azureappservice';
 import { IActionContext } from 'vscode-azureextensionui';
 import { SiteTreeItem } from '../explorer/SiteTreeItem';
+import { TrialAppTreeItem } from '../explorer/TrialAppTreeItem';
 import { WebAppTreeItem } from '../explorer/WebAppTreeItem';
 import { ext } from '../extensionVariables';
 import { delay } from '../utils/delay';
@@ -22,9 +23,9 @@ export type sshTerminal = {
 
 export const sshSessionsMap: Map<string, sshTerminal> = new Map();
 
-export async function startSsh(context: IActionContext, node?: SiteTreeItem): Promise<void> {
+export async function startSsh(context: IActionContext, node?: SiteTreeItem | TrialAppTreeItem): Promise<void> {
     if (!node) {
-        node = <SiteTreeItem>await ext.tree.showTreeItemPicker(WebAppTreeItem.contextValue, context);
+        node = <SiteTreeItem | TrialAppTreeItem>await ext.tree.showTreeItemPicker(WebAppTreeItem.contextValue, context);
     }
 
     const currentSshTerminal: sshTerminal | undefined = sshSessionsMap.get(node.root.client.fullName);
@@ -46,8 +47,8 @@ export async function startSsh(context: IActionContext, node?: SiteTreeItem): Pr
     }
 }
 
-async function startSshInternal(node: SiteTreeItem): Promise<void> {
-    const siteClient: SiteClient = node.root.client;
+async function startSshInternal(node: SiteTreeItem | TrialAppTreeItem): Promise<void> {
+    const siteClient: SiteClient | TrialAppClient = node.root.client;
     if (!siteClient.isLinux) {
         throw new Error('Azure SSH is only supported for Linux web apps.');
     }
@@ -59,7 +60,9 @@ async function startSshInternal(node: SiteTreeItem): Promise<void> {
         const confirmDisableMessage: string = 'Remote debugging must be disabled in order to SSH. This will restart the app.';
         const siteConfig: SiteConfigResource = await siteClient.getSiteConfig();
         // remote debugging has to be disabled in order to tunnel to the 2222 port
-        await setRemoteDebug(false, confirmDisableMessage, undefined, siteClient, siteConfig, progress, token);
+        if (siteClient instanceof SiteClient) {
+            await setRemoteDebug(false, confirmDisableMessage, undefined, siteClient, siteConfig, progress, token);
+        }
 
         reportMessage('Initializing SSH...', progress, token);
         const publishCredential: User = await siteClient.getWebAppPublishCredential();
@@ -74,7 +77,7 @@ async function startSshInternal(node: SiteTreeItem): Promise<void> {
     });
 }
 
-async function connectToTunnelProxy(node: SiteTreeItem, tunnelProxy: TunnelProxy, port: number): Promise<void> {
+async function connectToTunnelProxy(node: SiteTreeItem | TrialAppTreeItem, tunnelProxy: TunnelProxy, port: number): Promise<void> {
     const sshTerminalName: string = `${node.root.client.fullName} - SSH`;
     // -o StrictHostKeyChecking=no doesn't prompt for adding to hosts
     // -o "UserKnownHostsFile /dev/null" doesn't add host to known_user file

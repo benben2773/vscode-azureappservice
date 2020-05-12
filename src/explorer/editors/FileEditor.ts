@@ -35,7 +35,7 @@ export class FileEditor extends BaseEditor<FileTreeItem> {
             this._etags.set(node.fullId, result.etag);
             return result.data;
         } else {
-            const kuduClient: KuduClient = node.kuduClient;
+            const kuduClient: KuduClient = await node.client.getKuduClient();
             // tslint:disable:no-unsafe-any
             // tslint:disable-next-line:no-any
             const response: any = (<any>await kuduClient.vfs.getItemWithHttpOperationResponse(node.path)).response;

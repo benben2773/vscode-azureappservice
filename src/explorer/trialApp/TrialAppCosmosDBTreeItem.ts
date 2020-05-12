@@ -104,7 +104,7 @@ export class TrialAppCosmosDBTreeItem extends AzExtParentTreeItem {
         }
 
         await this.parent.parent.client.updateApplicationSettings(appSettingsDict);
-        await this.parent.parent.appSettingsNode.refresh();
+        await this.parent.parent.refresh();
 
         const createdDatabase = new TrialAppCosmosDBConnection(this, databaseToAdd, Array.from(newAppSettings.keys()));
         context.showCreatingTreeItem(createdDatabase.label);

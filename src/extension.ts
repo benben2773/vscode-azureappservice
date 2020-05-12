@@ -14,6 +14,7 @@ import { registerCommands } from './commands/registerCommands';
 import { AzureAccountTreeItem } from './explorer/AzureAccountTreeItem';
 import { FileEditor } from './explorer/editors/FileEditor';
 import { ext } from './extensionVariables';
+import { ImportHandler } from './ImportHandler';
 
 // tslint:disable-next-line:export-name
 // tslint:disable-next-line:max-func-body-length
@@ -52,6 +53,7 @@ export async function activateInternal(
         context.subscriptions.push(ext.fileEditor);
 
         registerCommands();
+        new ImportHandler();
     });
 
     return createApiProvider([<AzureExtensionApi>{

@@ -35,6 +35,7 @@ import { viewCommitInGitHub } from "./deployments/viewCommitInGitHub";
 import { viewDeploymentLogs } from "./deployments/viewDeploymentLogs";
 import { extendTrialApp } from "./extendTrialApp";
 import { generateDeploymentScript } from "./generateDeploymentScript";
+import { importTrialApp } from './importTrialApp';
 import { installCosmosDBExtension } from "./installCosmosDBExtension";
 import { enableFileLogging } from "./logstream/enableFileLogging";
 import { startStreamingLogs } from "./logstream/startStreamingLogs";
@@ -50,6 +51,7 @@ import { swapSlots } from "./swapSlots";
 
 export function registerCommands(): void {
 
+    commands.registerCommand('appService.ImportTrialApp', importTrialApp);
     registerCommand('appService.ExtendTrialApp', extendTrialApp);
     registerCommand('appService.CreateTrialApp', createTrialApp);
     registerCommand('appService.AddCosmosDBConnection', addCosmosDBConnection);

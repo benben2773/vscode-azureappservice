@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { TrialAppMetadata } from 'vscode-azureappservice';
+import { ITrialAppMetadata } from 'vscode-azureappservice';
 import { AzExtTreeItem, AzureAccountTreeItemBase, GenericTreeItem, IActionContext, ISubscriptionContext } from 'vscode-azureextensionui';
 import { ext } from '../extensionVariables';
 import { localize } from '../localize';
@@ -44,7 +44,7 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         if (ext.context.globalState.get('appServiceTrialMode') === true) {
             const session: string | undefined = ext.context.globalState.get('trialApp.loginsession');
             if (session) {
-                const metadata: TrialAppMetadata = await this.getTrialAppMetaData(session);
+                const metadata: ITrialAppMetadata = await this.getTrialAppMetaData(session);
                 const trialAppNode = new TrialAppTreeItem(this, metadata);
                 const token: string | undefined = ext.context.globalState.get('trialAppBearerToken');
 
@@ -66,7 +66,7 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         return super.compareChildrenImpl(item1, item2);
     }
 
-    private async getTrialAppMetaData(loginsession: string): Promise<TrialAppMetadata> {
+    private async getTrialAppMetaData(loginsession: string): Promise<ITrialAppMetadata> {
         const metadataRequest: requestUtils.Request = await requestUtils.getDefaultRequest('https://tryappservice.azure.com/api/vscoderesource', undefined, 'GET');
 
         metadataRequest.headers = {
@@ -81,7 +81,7 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         try {
             const result: string = await requestUtils.sendRequest<string>(metadataRequest);
             ext.outputChannel.appendLine(String(result));
-            return <TrialAppMetadata>JSON.parse(result);
+            return <ITrialAppMetadata>JSON.parse(result);
 
         } catch (e) {
             ext.outputChannel.appendLine(e);

@@ -29,6 +29,7 @@
     ],
     "preview": true,
     "activationEvents": [
+        "onCommand:appService.ImportTrialApp",
         "onCommand:appService.CreateTrialApp",
         "onCommand:appService.CreateWebApp",
         "onCommand:appService.CreateWebAppAdvanced",
@@ -69,7 +70,8 @@
         "onCommand:appService.RemoveCosmosDBConnection",
         "onCommand:appService.RevealConnection",
         "onCommand:appService.RevealConnectionInAppSettings",
-        "onView:azureAppService"
+        "onView:azureAppService",
+        "onUri"
     ],
     "main": "./main.js",
     "contributes": {
@@ -249,6 +251,11 @@
                 "category": "Azure App Service"
             },
             {
+                "command": "appService.ImportTrialApp",
+                "title": "Import Trial App",
+                "category": "Azure App Service"
+            },
+            {
                 "command": "appService.ScaleUp",
                 "title": "Scale up App Service Plan...",
                 "category": "Azure App Service"
@@ -343,6 +350,10 @@
                     "when": "never"
                 },
                 {
+                    "command": "appService.ImportTrialApp",
+                    "when": "never"
+                },
+                {
                     "command": "appService.Refresh",
                     "when": "never"
                 },
@@ -388,11 +399,12 @@
                 {
                     "command": "appService.ExtendTrialApp",
                     "when": "view == azureAppService && viewItem =~ /^(trialApp)$/",
-                    "group": "2_appServiceControlCommands@1"
+                    "group": "1_trialAppModificationCommands@1"
                 },
                 {
                     "command": "appService.DeleteTrialApp",
-                    "when": "view == azureAppService && viewItem == trialApp"
+                    "when": "view == azureAppService && viewItem == trialApp",
+                    "group": "1_trialAppModificationCommands@2"
                 },
                 {
                     "command": "appService.selectSubscriptions",
@@ -413,11 +425,6 @@
                     "command": "appService.OpenInPortal",
                     "when": "view == azureAppService && viewItem == azureextensionui.azureSubscription",
                     "group": "1_subscriptionGeneralCommands@3"
-                },
-                {
-                    "command": "appService.Refresh",
-                    "when": "view == azureAppService && viewItem == azureextensionui.azureSubscription",
-                    "group": "2_subscriptionGeneralCommands@1"
                 },
                 {
                     "command": "appService.OpenInPortal",
@@ -456,7 +463,7 @@
                 },
                 {
                     "command": "appService.Deploy",
-                    "when": "view == azureAppService && viewItem == appService",
+                    "when": "view == azureAppService && viewItem =~ /^(appService|trialApp)$/",
                     "group": "3_appServiceDeployCommands@1"
                 },
                 {
@@ -471,12 +478,12 @@
                 },
                 {
                     "command": "appService.startStreamingLogs",
-                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot)$/",
+                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot|trialApp)$/",
                     "group": "4_appServiceDiagnosticsCommands@1"
                 },
                 {
                     "command": "appService.StopLogStream",
-                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot)$/",
+                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot|trialApp)$/",
                     "group": "4_appServiceDiagnosticsCommands@2"
                 },
                 {
@@ -486,7 +493,7 @@
                 },
                 {
                     "command": "appService.Refresh",
-                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot)$/",
+                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot|trialApp)$/",
                     "group": "7_appServiceRefreshCommands@1"
                 },
                 {
@@ -496,7 +503,7 @@
                 },
                 {
                     "command": "appService.StartSsh",
-                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot)$/",
+                    "when": "view == azureAppService && viewItem =~ /^(appService|deploymentSlot|trialApp)$/",
                     "group": "5_appServiceRemoteCommands@2"
                 },
                 {
