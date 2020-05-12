@@ -12,7 +12,7 @@ export async function deleteTrialApp(context: IActionContext, node?: TrialAppTre
         node = await ext.tree.showTreeItemPicker<TrialAppTreeItem>(TrialAppTreeItem.contextValue, context);
     }
 
-    ext.context.globalState.update('appServiceTrialMode', false);
-    await node.deleteTreeItem(context);
+    ext.context.globalState.update('trialApp.hasApp', false);
+    // await node.deleteTreeItem(context);
     await ext.tree.refresh();
 }

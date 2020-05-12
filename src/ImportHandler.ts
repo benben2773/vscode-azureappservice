@@ -17,6 +17,7 @@ export class ImportHandler implements UriHandler {
     public handleUri(uri: Uri): void {
         switch (uri.path) {
             case '/ImportTrialApp': this.importTrialApp(uri);
+            default:
         }
     }
 

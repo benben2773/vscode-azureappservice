@@ -58,7 +58,13 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
         this._siteFilesNode = new TrialAppFolderTreeItem(this, 'Files', '/site/wwwroot', false, this.client);
         this._connectionsNode = new TrialAppConnectionsTreeItem(this);
         this.root = this;
+        this.setTimeoutRefresh();
     }
+
+    public setTimeoutRefresh(): void {
+        setTimeout(this.refresh, 500);
+    }
+
     public dispose(): void {
         // tslint:disable-next-line: no-unsafe-any
         Disposable.from(...this._disposables).dispose();
@@ -114,7 +120,6 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
         };
 
         const result: string = await requestUtils.sendRequest<string>(create);
-        ext.outputChannel.appendLine(result);
     }
     public async extendTrialApp(): Promise<void> {
         const request: requestUtils.Request = await requestUtils.getDefaultRequest('https://tryappservice.azure.com/api/resource/extend', this.client.credentials, 'POST');

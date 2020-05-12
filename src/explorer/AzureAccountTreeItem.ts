@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { ProgressLocation, window } from 'vscode';
 import { ITrialAppMetadata } from 'vscode-azureappservice';
 import { AzExtTreeItem, AzureAccountTreeItemBase, GenericTreeItem, IActionContext, ISubscriptionContext } from 'vscode-azureextensionui';
 import { ext } from '../extensionVariables';
@@ -25,9 +26,47 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
 
         const children: AzExtTreeItem[] = await super.loadMoreChildrenImpl(clearCache, context);
 
-        const hasTrialApp: boolean | undefined = ext.context.globalState.get('appServiceTrialMode');
+        const hasTrialApp: boolean | undefined = ext.context.globalState.get('trialApp.hasApp');
+        const importedTrialApp: boolean | undefined = ext.context.globalState.get('trialApp.imported');
 
-        if (!hasTrialApp && children.length > 0 && children[0] instanceof GenericTreeItem) {
+        if (importedTrialApp && !hasTrialApp) {
+            await window.withProgress({ location: ProgressLocation.Notification, cancellable: false }, async p => {
+
+                const session: string | undefined = ext.context.globalState.get('trialApp.loginsession');
+                if (session) {
+                    p.report({ message: 'Importing trial app...' });
+                    const metadata: ITrialAppMetadata = await this.getTrialAppMetaData(session);
+                    const trialAppNode = new TrialAppTreeItem(this, metadata);
+                    const bearerToken: string | undefined = ext.context.globalState.get('trialAppBearerToken');
+
+                    if (bearerToken !== undefined) {
+                        trialAppNode.token = bearerToken;
+                    }
+
+                    children.push(trialAppNode);
+                }
+
+            });
+            ext.context.globalState.update('trialApp.imported', false);
+            ext.context.globalState.update('trialApp.hasApp', true);
+        } else {
+            if (ext.context.globalState.get('trialApp.hasApp') === true) {
+                const session: string | undefined = ext.context.globalState.get('trialApp.loginsession');
+                if (session) {
+                    const metadata: ITrialAppMetadata = await this.getTrialAppMetaData(session);
+                    const trialAppNode = new TrialAppTreeItem(this, metadata);
+                    const token: string | undefined = ext.context.globalState.get('trialAppBearerToken');
+
+                    if (token !== undefined) {
+                        trialAppNode.token = token;
+                    }
+
+                    children.push(trialAppNode);
+                }
+            }
+        }
+
+        if (!importedTrialApp && !hasTrialApp && children.length > 0 && children[0] instanceof GenericTreeItem) {
 
             const ti: GenericTreeItem = new GenericTreeItem(this, {
                 label: localize('createNewTrialApp', 'Create free NodeJS Trial App...'),
@@ -39,21 +78,6 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
 
             ti.commandArgs = [];
             children.push(ti);
-        }
-
-        if (ext.context.globalState.get('appServiceTrialMode') === true) {
-            const session: string | undefined = ext.context.globalState.get('trialApp.loginsession');
-            if (session) {
-                const metadata: ITrialAppMetadata = await this.getTrialAppMetaData(session);
-                const trialAppNode = new TrialAppTreeItem(this, metadata);
-                const token: string | undefined = ext.context.globalState.get('trialAppBearerToken');
-
-                if (token !== undefined) {
-                    trialAppNode.token = token;
-                }
-
-                children.push(trialAppNode);
-            }
         }
 
         return children;
@@ -80,12 +104,14 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
 
         try {
             const result: string = await requestUtils.sendRequest<string>(metadataRequest);
-            ext.outputChannel.appendLine(String(result));
             return <ITrialAppMetadata>JSON.parse(result);
 
         } catch (e) {
-            ext.outputChannel.appendLine(e);
-            throw Error;
+            ext.outputChannel.appendLine(`Error: Unable to fetch trial app metadata.\n ${e}`);
+            ext.context.globalState.update('trialApp.hasApp', false);
+            //ext.context.globalState.get('trialApp.loginsession');
+            await ext.tree.refresh();
+            return Promise.reject();
         }
     }
 }
