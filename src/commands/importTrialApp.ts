@@ -13,7 +13,7 @@ export async function importTrialApp(loginSession?: string): Promise<void> {
         ext.context.globalState.update('trialApp.loginsession', loginSession);
         ext.context.globalState.update('trialApp.imported', true);
 
-        await ext.azureAccountTreeItem.refresh();
+        // await ext.azureAccountTreeItem.refresh();
 
     } else {
         window.showErrorMessage('App could not be imported. No loginSession provided.');

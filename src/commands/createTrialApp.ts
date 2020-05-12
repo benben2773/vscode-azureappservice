@@ -9,7 +9,7 @@
 
 import { window } from "vscode";
 import { IActionContext, ICreateChildImplContext } from "vscode-azureextensionui";
-import { ext } from "../../extensionVariables";
+import { ext } from "../extensionVariables";
 
 export async function createTrialApp(context: IActionContext & Partial<ICreateChildImplContext>, loginSession?: string): Promise<void> {
 

@@ -30,8 +30,6 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
     public static contextValue: string = 'trialApp';
     public isReadOnly: boolean;
 
-    public loginSession: string;
-
     public token: string;
 
     public metadata: ITrialAppMetadata;
@@ -58,11 +56,6 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
         this._siteFilesNode = new TrialAppFolderTreeItem(this, 'Files', '/site/wwwroot', false, this.client);
         this._connectionsNode = new TrialAppConnectionsTreeItem(this);
         this.root = this;
-        this.setTimeoutRefresh();
-    }
-
-    public setTimeoutRefresh(): void {
-        setTimeout(this.refresh, 500);
     }
 
     public dispose(): void {
@@ -74,7 +67,7 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
         return false;
     }
 
-    public async refresh(): Promise<void> {
+    public async refreshImpl(): Promise<void> {
         this.metadata = await this.getTrialAppMetaData();
     }
 
@@ -131,10 +124,10 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
             authorization: `Bearer ${this.token}`,
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-origin",
-            cookie: `loginsession = ${this.loginSession}`
+            cookie: `loginsession = ${this.metadata.loginSession}`
         };
 
-        // request.auth = { bearer: this.token, user: this.metadata.publishingUserName, username: this.metadata.publishingUserName, password: this.metadata.publishingPassword };
+        request.auth = { username: this.metadata.publishingUserName, password: this.metadata.publishingPassword };
 
         try {
 
@@ -154,7 +147,7 @@ export class TrialAppTreeItem extends TrialAppTreeItemBase {
             "sec-fetch-dest": "empty",
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-origin",
-            cookie: `loginsession = ${this.loginSession}`
+            cookie: `loginsession=${this.metadata.loginSession}`
         };
 
         try {

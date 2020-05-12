@@ -29,26 +29,34 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         const hasTrialApp: boolean | undefined = ext.context.globalState.get('trialApp.hasApp');
         const importedTrialApp: boolean | undefined = ext.context.globalState.get('trialApp.imported');
 
+        let addCreateTrialAppNode: boolean = !importedTrialApp && !hasTrialApp && children.length > 0 && children[0] instanceof GenericTreeItem;
+
         if (importedTrialApp && !hasTrialApp) {
             await window.withProgress({ location: ProgressLocation.Notification, cancellable: false }, async p => {
 
                 const session: string | undefined = ext.context.globalState.get('trialApp.loginsession');
                 if (session) {
                     p.report({ message: 'Importing trial app...' });
-                    const metadata: ITrialAppMetadata = await this.getTrialAppMetaData(session);
-                    const trialAppNode = new TrialAppTreeItem(this, metadata);
-                    const bearerToken: string | undefined = ext.context.globalState.get('trialAppBearerToken');
+                    try {
+                        const metadata: ITrialAppMetadata = await this.getTrialAppMetaData(session);
+                        const trialAppNode = new TrialAppTreeItem(this, metadata);
+                        const bearerToken: string | undefined = ext.context.globalState.get('trialAppBearerToken');
 
-                    if (bearerToken !== undefined) {
-                        trialAppNode.token = bearerToken;
+                        if (bearerToken !== undefined) {
+                            trialAppNode.token = bearerToken;
+                        }
+
+                        children.push(trialAppNode);
+                        ext.context.globalState.update('trialApp.hasApp', true);
+                    } catch (error) {
+                        window.showErrorMessage('App could not be imported. Trial app has expired.');
+                        addCreateTrialAppNode = true;
+                        ext.context.globalState.update('trialApp.hasApp', false);
                     }
-
-                    children.push(trialAppNode);
                 }
 
             });
             ext.context.globalState.update('trialApp.imported', false);
-            ext.context.globalState.update('trialApp.hasApp', true);
         } else {
             if (ext.context.globalState.get('trialApp.hasApp') === true) {
                 const session: string | undefined = ext.context.globalState.get('trialApp.loginsession');
@@ -66,7 +74,7 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
             }
         }
 
-        if (!importedTrialApp && !hasTrialApp && children.length > 0 && children[0] instanceof GenericTreeItem) {
+        if (addCreateTrialAppNode) {
 
             const ti: GenericTreeItem = new GenericTreeItem(this, {
                 label: localize('createNewTrialApp', 'Create free NodeJS Trial App...'),
@@ -84,6 +92,9 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
     }
 
     public compareChildrenImpl(item1: AzExtTreeItem, item2: AzExtTreeItem): number {
+        if (item2 instanceof GenericTreeItem) {
+            return 1;
+        }
         if (!(item1 instanceof SubscriptionTreeItem) && item2 instanceof SubscriptionTreeItem) {
             return -1; // trial apps on top of subscriptions
         }
@@ -109,9 +120,8 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
         } catch (e) {
             ext.outputChannel.appendLine(`Error: Unable to fetch trial app metadata.\n ${e}`);
             ext.context.globalState.update('trialApp.hasApp', false);
-            //ext.context.globalState.get('trialApp.loginsession');
-            await ext.tree.refresh();
-            return Promise.reject();
+            ext.context.globalState.update('trialApp.imported', false);
+            throw Error;
         }
     }
 }

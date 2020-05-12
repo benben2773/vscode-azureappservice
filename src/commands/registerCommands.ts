@@ -21,7 +21,7 @@ import { removeCosmosDBConnection } from "./connections/removeCosmosDBConnection
 import { revealConnection } from "./connections/revealConnection";
 import { revealConnectionInAppSettings } from "./connections/revealConnectionInAppSettings";
 import { createSlot } from "./createSlot";
-import { createTrialApp } from "./createTrialApp/createTrialApp";
+import { createTrialApp } from "./createTrialApp";
 import { createWebApp, createWebAppAdvanced } from "./createWebApp/createWebApp";
 import { deleteTrialApp } from "./deleteTrialApp";
 import { deleteWebApp } from "./deleteWebApp";
@@ -48,10 +48,14 @@ import { startSsh } from "./startSsh";
 import { startWebApp } from "./startWebApp";
 import { stopWebApp } from "./stopWebApp";
 import { swapSlots } from "./swapSlots";
+import { cloneTrialApp } from './trialApp/cloneTrialApp';
+import { removeTrialApp } from './trialApp/removeTrialApp';
 
 export function registerCommands(): void {
 
     commands.registerCommand('appService.ImportTrialApp', importTrialApp);
+    registerCommand('appService.CloneTrialApp', cloneTrialApp);
+    registerCommand('appService.RemoveTrialApp', removeTrialApp);
     registerCommand('appService.ExtendTrialApp', extendTrialApp);
     registerCommand('appService.CreateTrialApp', createTrialApp);
     registerCommand('appService.AddCosmosDBConnection', addCosmosDBConnection);

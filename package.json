@@ -29,6 +29,7 @@
     ],
     "preview": true,
     "activationEvents": [
+        "onCommand:appService.RemoveTrialApp",
         "onCommand:appService.ImportTrialApp",
         "onCommand:appService.CreateTrialApp",
         "onCommand:appService.CreateWebApp",
@@ -256,6 +257,16 @@
                 "category": "Azure App Service"
             },
             {
+                "command": "appService.RemoveTrialApp",
+                "title": "Remove Trial App from VS Code",
+                "category": "Azure App Service"
+            },
+            {
+                "command": "appService.CloneTrialApp",
+                "title": "Clone app source",
+                "category": "Azure App Service"
+            },
+            {
                 "command": "appService.ScaleUp",
                 "title": "Scale up App Service Plan...",
                 "category": "Azure App Service"
@@ -350,6 +361,10 @@
                     "when": "never"
                 },
                 {
+                    "command": "appService.CloneTrialApp",
+                    "when": "never"
+                },
+                {
                     "command": "appService.ImportTrialApp",
                     "when": "never"
                 },
@@ -396,6 +411,16 @@
                 }
             ],
             "view/item/context": [
+                {
+                    "command": "appService.RemoveTrialApp",
+                    "when": "view == azureAppService && viewItem =~ /^(trialApp)$/",
+                    "group": "6_trialAppModificationCommands@1"
+                },
+                {
+                    "command": "appService.CloneTrialApp",
+                    "when": "view == azureAppService && viewItem =~ /^(trialApp)$/",
+                    "group": "1_appServiceGeneralCommands@3"
+                },
                 {
                     "command": "appService.ExtendTrialApp",
                     "when": "view == azureAppService && viewItem =~ /^(trialApp)$/",
