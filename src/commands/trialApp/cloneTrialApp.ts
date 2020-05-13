@@ -13,5 +13,4 @@ export async function cloneTrialApp(context: IActionContext, node?: TrialAppTree
         node = await ext.tree.showTreeItemPicker<TrialAppTreeItem>(TrialAppTreeItem.contextValue, context);
     }
     commands.executeCommand('git.clone', node.client.metadata.gitUrl);
-    // await ext.tree.refresh();
 }

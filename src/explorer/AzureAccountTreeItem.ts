@@ -40,11 +40,6 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
                     try {
                         const metadata: ITrialAppMetadata = await this.getTrialAppMetaData(session);
                         const trialAppNode = new TrialAppTreeItem(this, metadata);
-                        const bearerToken: string | undefined = ext.context.globalState.get('trialAppBearerToken');
-
-                        if (bearerToken !== undefined) {
-                            trialAppNode.token = bearerToken;
-                        }
 
                         children.push(trialAppNode);
                         ext.context.globalState.update('trialApp.hasApp', true);
@@ -63,11 +58,6 @@ export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
                 if (session) {
                     const metadata: ITrialAppMetadata = await this.getTrialAppMetaData(session);
                     const trialAppNode = new TrialAppTreeItem(this, metadata);
-                    const token: string | undefined = ext.context.globalState.get('trialAppBearerToken');
-
-                    if (token !== undefined) {
-                        trialAppNode.token = token;
-                    }
 
                     children.push(trialAppNode);
                 }

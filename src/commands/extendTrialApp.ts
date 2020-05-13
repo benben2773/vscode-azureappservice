@@ -12,8 +12,8 @@ import { IActionContext, ICreateChildImplContext } from "vscode-azureextensionui
 import { TrialAppTreeItem } from '../explorer/TrialAppTreeItem';
 import { ext } from "../extensionVariables";
 
+// @ts-ignore
 export async function extendTrialApp(context: IActionContext & Partial<ICreateChildImplContext>, node?: TrialAppTreeItem): Promise<void> {
-
     if (!node) {
         return;
     } else {

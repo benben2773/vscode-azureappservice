@@ -53,6 +53,7 @@ export async function activateInternal(
         context.subscriptions.push(ext.fileEditor);
 
         registerCommands();
+        // tslint:disable-next-line: no-unused-expression
         new ImportHandler();
     });
 
