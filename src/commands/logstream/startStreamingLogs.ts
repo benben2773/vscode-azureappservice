@@ -17,7 +17,9 @@ export async function startStreamingLogs(context: IActionContext, node?: SiteTre
     }
 
     const verifyLoggingEnabled: () => Promise<void> = async (): Promise<void> => {
-        await enableFileLogging({ ...context, suppressAlreadyEnabledMessage: true }, node);
+        if (node instanceof SiteTreeItem) {
+            await enableFileLogging({ ...context, suppressAlreadyEnabledMessage: true }, node);
+        }
     };
 
     if (node instanceof TrialAppTreeItem) {
