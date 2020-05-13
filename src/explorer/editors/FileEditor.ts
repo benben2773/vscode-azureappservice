@@ -3,12 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { FileTreeItem, getFile, IFileResult, putFile, TrialAppFileTreeItem } from 'vscode-azureappservice';
+import { FileTreeItem, getFile, IFileResult, putFile } from 'vscode-azureappservice';
 import { BaseEditor, IParsedError, parseError } from 'vscode-azureextensionui';
 import KuduClient from 'vscode-azurekudu';
 import { ext } from '../../extensionVariables';
 import { localize } from '../../localize';
 import { nonNullValue } from '../../utils/nonNull';
+import { TrialAppFileTreeItem } from '../trialApp/TrialAppFileTreeItem';
 
 export class FileEditor extends BaseEditor<FileTreeItem> {
     private _etags: Map<string, string> = new Map<string, string>();

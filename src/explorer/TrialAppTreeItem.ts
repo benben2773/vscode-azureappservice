@@ -4,12 +4,16 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { Disposable } from 'vscode';
-import { ITrialAppMetadata, TrialAppClient, TrialAppDeploymentTreeItem, TrialAppFolderTreeItem, TrialAppLogFilesTreeItem, TrialAppSettingsTreeItem } from 'vscode-azureappservice';
+import { ITrialAppMetadata, TrialAppClient } from 'vscode-azureappservice';
 import { ext } from 'vscode-azureappservice/out/src/extensionVariables';
 import { requestUtils } from 'vscode-azureappservice/out/src/utils/requestUtils';
 import { AzExtParentTreeItem, AzExtTreeItem } from '../../extension.bundle';
 import { TrialAppConnectionsTreeItem } from './trialApp/TrialAppConnectionsTreeItem';
 import { TrialAppConvertTreeItem } from './trialApp/TrialAppConvertTreeItem';
+import { TrialAppDeploymentTreeItem } from './trialApp/TrialAppDeploymentTreeItem';
+import { TrialAppFolderTreeItem } from './trialApp/TrialAppFolderTreeItem';
+import { TrialAppLogFilesTreeItem } from './trialApp/TrialAppLogFilesTreeItem';
+import { TrialAppSettingsTreeItem } from './trialApp/TrialAppSettingsTreeItem';
 import { TrialAppTreeItemBase } from './TrialAppTreeItemBase';
 
 export class TrialAppTreeItem extends TrialAppTreeItemBase {
