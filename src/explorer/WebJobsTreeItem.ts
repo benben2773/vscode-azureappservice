@@ -3,23 +3,23 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ISiteTreeRoot } from 'vscode-azureappservice';
-import { AzExtTreeItem, AzureParentTreeItem, GenericTreeItem } from 'vscode-azureextensionui';
+import { SiteClient } from 'vscode-azureappservice';
+import { AzExtParentTreeItem, AzExtTreeItem, GenericTreeItem } from 'vscode-azureextensionui';
 import { getThemedIconPath, IThemedIconPath } from '../utils/pathUtils';
 import { NotAvailableTreeItem } from './NotAvailableTreeItem';
+import { WebJobsTreeItemBase } from './WebJobsTreeItemBase';
 
-export class WebJobsTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
-    public static contextValue: string = 'webJobs';
-    public readonly label: string = 'WebJobs';
-    public readonly contextValue: string = WebJobsTreeItem.contextValue;
-    public readonly childTypeLabel: string = 'Web Job';
-
-    public get id(): string {
-        return 'webJobs';
-    }
+export class WebJobsTreeItem extends WebJobsTreeItemBase {
 
     public get iconPath(): IThemedIconPath {
         return getThemedIconPath('WebJobs_color');
+    }
+
+    private readonly _client: SiteClient;
+
+    constructor(parent: AzExtParentTreeItem, client: SiteClient) {
+        super(parent);
+        this._client = client;
     }
 
     public hasMoreChildrenImpl(): boolean {
@@ -27,7 +27,7 @@ export class WebJobsTreeItem extends AzureParentTreeItem<ISiteTreeRoot> {
     }
 
     public async loadMoreChildrenImpl(_clearCache: boolean): Promise<AzExtTreeItem[]> {
-        return (await this.root.client.listWebJobs()).map((job: webJob) => {
+        return (await this._client.listWebJobs()).map((job: webJob) => {
             return new GenericTreeItem(this, { id: job.name, label: job.name, contextValue: 'webJob' });
         });
     }
@@ -38,7 +38,7 @@ export class WebJobsNATreeItem extends NotAvailableTreeItem {
     public readonly label: string = 'WebJobs';
     public readonly contextValue: string = WebJobsNATreeItem.contextValue;
 
-    public constructor(parent: AzureParentTreeItem) {
+    public constructor(parent: AzExtParentTreeItem) {
         super(parent);
     }
 

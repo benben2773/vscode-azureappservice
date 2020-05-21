@@ -10,7 +10,7 @@ import { MessageItem } from 'vscode';
 import {
     AppSettingsTreeItem, AppSettingTreeItem, deleteSite, DeploymentsTreeItem, DeploymentTreeItem, FolderTreeItem, ISiteTreeRoot, LinuxRuntimes, LogFilesTreeItem, SiteClient, SiteFilesTreeItem
 } from 'vscode-azureappservice';
-import { AzExtTreeItem, AzureParentTreeItem, AzureTreeItem, DialogResponses, IActionContext } from 'vscode-azureextensionui';
+import { AzExtParentTreeItem, AzExtTreeItem, AzureParentTreeItem, DialogResponses, IActionContext } from 'vscode-azureextensionui';
 import * as constants from '../constants';
 import { ext } from '../extensionVariables';
 import { openUrl } from '../utils/openUrl';
@@ -21,12 +21,10 @@ import { CosmosDBConnection } from './CosmosDBConnection';
 import { CosmosDBTreeItem } from './CosmosDBTreeItem';
 import { ISiteTreeItem } from './ISiteTreeItem';
 import { NotAvailableTreeItem } from './NotAvailableTreeItem';
+import { SiteTreeItemBase } from './SiteTreeItemBase';
 import { WebJobsNATreeItem, WebJobsTreeItem } from './WebJobsTreeItem';
 
-export abstract class SiteTreeItem extends AzureParentTreeItem<ISiteTreeRoot> implements ISiteTreeItem {
-    public readonly abstract contextValue: string;
-    public readonly abstract label: string;
-
+export abstract class SiteTreeItem extends SiteTreeItemBase implements ISiteTreeItem {
     public readonly appSettingsNode: AppSettingsTreeItem;
     public deploymentsNode: DeploymentsTreeItem | undefined;
 
@@ -48,7 +46,7 @@ export abstract class SiteTreeItem extends AzureParentTreeItem<ISiteTreeRoot> im
         this._siteFilesNode = new SiteFilesTreeItem(this, false);
         this._logFilesNode = new LogFilesTreeItem(this);
         // Can't find actual documentation on this, but the portal claims it and this feedback suggests it's not planned https://aka.ms/AA4q5gi
-        this._webJobsNode = this.root.client.isLinux ? new WebJobsNATreeItem(this) : new WebJobsTreeItem(this);
+        this._webJobsNode = this.root.client.isLinux ? new WebJobsNATreeItem(this) : new WebJobsTreeItem(this, this.root.client);
     }
 
     public get defaultHostUrl(): string {
@@ -91,14 +89,14 @@ export abstract class SiteTreeItem extends AzureParentTreeItem<ISiteTreeRoot> im
         return this.root.client.id;
     }
 
-    public async loadMoreChildrenImpl(_clearCache: boolean): Promise<AzureTreeItem<ISiteTreeRoot>[]> {
+    public async loadMoreChildrenImpl(_clearCache: boolean): Promise<AzExtParentTreeItem[]> {
         const siteConfig: WebSiteModels.SiteConfig = await this.root.client.getSiteConfig();
         const sourceControl: WebSiteModels.SiteSourceControl = await this.root.client.getSourceControl();
-        this.deploymentsNode = new DeploymentsTreeItem(this, siteConfig, sourceControl);
+        this.deploymentsNode = new DeploymentsTreeItem(this, this.root.client, siteConfig, sourceControl);
         return [this.appSettingsNode, this._connectionsNode, this.deploymentsNode, this._siteFilesNode, this._logFilesNode, this._webJobsNode];
     }
 
-    public compareChildrenImpl(ti1: AzureTreeItem<ISiteTreeRoot>, ti2: AzureTreeItem<ISiteTreeRoot>): number {
+    public compareChildrenImpl(ti1: AzExtTreeItem, ti2: AzExtTreeItem): number {
         if (ti1 instanceof NotAvailableTreeItem) {
             return 1;
         } else if (ti2 instanceof NotAvailableTreeItem) {

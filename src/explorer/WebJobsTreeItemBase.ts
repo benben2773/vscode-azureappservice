@@ -5,8 +5,13 @@
 
 import { AzExtParentTreeItem } from 'vscode-azureextensionui';
 
-export abstract class NotAvailableTreeItem extends AzExtParentTreeItem {
-    public constructor(parent: AzExtParentTreeItem) {
-        super(parent);
+export abstract class WebJobsTreeItemBase extends AzExtParentTreeItem {
+    public static contextValue: string = 'webJobs';
+    public readonly label: string = 'WebJobs';
+    public readonly contextValue: string = WebJobsTreeItemBase.contextValue;
+    public readonly childTypeLabel: string = 'Web Job';
+
+    public get id(): string {
+        return 'webJobs';
     }
 }

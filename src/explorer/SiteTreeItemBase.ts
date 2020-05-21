@@ -5,8 +5,11 @@
 
 import { AzExtParentTreeItem } from 'vscode-azureextensionui';
 
-export abstract class NotAvailableTreeItem extends AzExtParentTreeItem {
-    public constructor(parent: AzExtParentTreeItem) {
+export abstract class SiteTreeItemBase extends AzExtParentTreeItem {
+
+    public readonly abstract contextValue: string;
+    public readonly abstract label: string;
+    constructor(parent: AzExtParentTreeItem) {
         super(parent);
     }
 }
